@@ -1,0 +1,10 @@
+configs:
+  elasticsearch:
+    port:
+      cont: 9200
+    cluster_port:
+      cont: 9300
+    retention_period: 30
+versions:
+  elasticsearch_version: "2.4.0"
+  elasticsearch_curator_version: "4.1.0"
