@@ -1,16 +1,22 @@
-dsl_version: 0.7.0
+dsl_version: 0.8.0
 service:
-  name: elasticsearch
+  name: elasticsearch-master
+  headless: true
   ports:
     - {{ elasticsearch.port }}
     - {{ elasticsearch.cluster_port }}
   containers:
-    - name: elasticsearch
+    - name: elasticsearch-master
       image: elasticsearch
+      env:
+        - name: NODE_DATA
+          value: "false"
+        - name: NODE_MASTER
+          value: "true"
       daemon:
-        command: /usr/share/elasticsearch/bin/elasticsearch
         files:
           - elasticsearch.yml
+        command: /usr/share/elasticsearch/bin/elasticsearch
     - name: cron
       image: cron
       daemon:
@@ -19,7 +25,6 @@ service:
           - es-curator-config
           - es-curator-action-delete-indice
           - es-curator-cronjob
-
 files:
   elasticsearch.yml:
     path: /usr/share/elasticsearch/config/elasticsearch.yml
