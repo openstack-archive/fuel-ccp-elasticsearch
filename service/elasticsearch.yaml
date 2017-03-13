@@ -1,24 +1,69 @@
-dsl_version: 0.7.0
+dsl_version: 0.8.0
 service:
   name: elasticsearch
+  headless: true
   ports:
     - {{ elasticsearch.port }}
     - {{ elasticsearch.cluster_port }}
   containers:
-    - name: elasticsearch
+    - name: elasticsearch-data
       image: elasticsearch
+      volumes:
+        - name: elasticsearch-data
+          path: /usr/share/elasticsearch/data
+          type: empty-dir
+          readOnly: false
+      env:
+        - name: SERVICE
+          value: elasticsearch
+        - name: KUBERNETES_NAMESPACE
+          value: {{ elasticsearch.namespace }}
+        - name: NODE_DATA
+          value: "true"
+        - name: NODE_MASTER
+          value: "false"
       daemon:
-        command: /usr/share/elasticsearch/bin/elasticsearch
         files:
           - elasticsearch.yml
-    - name: cron
-      image: cron
+        command: /usr/share/elasticsearch/bin/elasticsearch
+    - name: elasticsearch-master
+      image: elasticsearch
+      env:
+        - name: SERVICE
+          value: elasticsearch
+        - name: KUBERNETES_NAMESPACE
+          value: {{ elasticsearch.namespace }}
+        - name: NODE_DATA
+          value: "false"
+        - name: NODE_MASTER
+          value: "true"
       daemon:
-        command: cron -f
         files:
-          - es-curator-config
-          - es-curator-action-delete-indice
-          - es-curator-cronjob
+          - elasticsearch.yml
+        command: /usr/share/elasticsearch/bin/elasticsearch
+    - name: elasticsearch-client
+      image: elasticsearch
+      env:
+        - name: SERVICE
+          value: elasticsearch
+        - name: KUBERNETES_NAMESPACE
+          value: {{ elasticsearch.namespace }}
+        - name: NODE_DATA
+          value: "false"
+        - name: NODE_MASTER
+          value: "false"
+      daemon:
+        files:
+          - elasticsearch.yml
+        command: /usr/share/elasticsearch/bin/elasticsearch
+#    - name: cron
+#      image: cron
+#      daemon:
+#        command: cron -f
+#        files:
+#          - es-curator-config
+#          - es-curator-action-delete-indice
+#          - es-curator-cronjob
 
 files:
   elasticsearch.yml:
