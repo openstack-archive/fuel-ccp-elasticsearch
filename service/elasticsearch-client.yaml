@@ -1,0 +1,23 @@
+dsl_version: 0.8.0
+service:
+  name: elasticsearch-client
+  headless: true
+  ports:
+    - {{ elasticsearch.port }}
+    - {{ elasticsearch.cluster_port }}
+  containers:
+    - name: elasticsearch-client
+      image: elasticsearch
+      env:
+        - name: NODE_DATA
+          value: "false"
+        - name: NODE_MASTER
+          value: "false"
+      daemon:
+        files:
+          - elasticsearch.yml
+        command: /usr/share/elasticsearch/bin/elasticsearch
+files:
+  elasticsearch.yml:
+    path: /usr/share/elasticsearch/config/elasticsearch.yml
+    content: elasticsearch.yml.j2

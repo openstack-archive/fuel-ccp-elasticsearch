@@ -5,6 +5,12 @@ configs:
     cluster_port:
       cont: 9300
     retention_period: 30
+    namespace: ccp
+
+url:
+  elasticsearch:
+    repo: https://artifacts.elastic.co/downloads/elasticsearch
+
 versions:
-  elasticsearch_version: "2.4.0"
+  elasticsearch_version: "5.2.2"
   elasticsearch_curator_version: "4.1.0"
