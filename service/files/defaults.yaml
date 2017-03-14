@@ -5,6 +5,14 @@ configs:
     cluster_port:
       cont: 9300
     retention_period: 30
+    namespace: ccp
+
+url:
+  elasticsearch:
+    deb: https://artifacts.elastic.co/packages/5.x/apt
+    gpg_key: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+
 versions:
-  elasticsearch_version: "2.4.0"
+  elasticsearch_version: "5.2.2"
+  elasticsearch_major_version: "5.x"
   elasticsearch_curator_version: "4.1.0"
