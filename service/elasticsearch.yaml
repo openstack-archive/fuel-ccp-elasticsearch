@@ -7,10 +7,15 @@ service:
   containers:
     - name: elasticsearch
       image: elasticsearch
+      env:
+        - name: NODE_DATA
+          value: "false"
+        - name: NODE_MASTER
+          value: "true"
       daemon:
-        command: /usr/share/elasticsearch/bin/elasticsearch
         files:
           - elasticsearch.yml
+        command: /usr/share/elasticsearch/bin/elasticsearch
     - name: cron
       image: cron
       daemon:
