@@ -1,0 +1,32 @@
+dsl_version: 0.8.0
+service:
+  name: elasticsearch-data
+  headless: true
+  ports:
+    - {{ elasticsearch.port }}
+    - {{ elasticsearch.cluster_port }}
+  containers:
+    - name: elasticsearch-data
+      image: elasticsearch
+      volumes:
+        - name: elasticsearch-data
+          path: /usr/share/elasticsearch/data
+          type: empty-dir
+          readOnly: false
+      env:
+        - name: NODE_DATA
+          value: "true"
+        - name: NODE_MASTER
+          value: "false"
+      daemon:
+        files:
+          - elasticsearch.yml
+          - log4j2
+        command: /usr/share/elasticsearch/bin/elasticsearch
+files:
+  elasticsearch.yml:
+    path: /usr/share/elasticsearch/config/elasticsearch.yml
+    content: elasticsearch.yml.j2
+  log4j2:
+    path: /usr/share/elasticsearch/config/log4j2.properties
+    content: log4j2.properties.j2

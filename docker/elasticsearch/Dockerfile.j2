@@ -3,18 +3,30 @@ MAINTAINER {{ maintainer }}
 
 ENV JAVA_HOME /usr/lib/jvm/java-1.8.0-openjdk-amd64/
 
+ADD {{ url.elasticsearch.repo }}/elasticsearch-{{ elasticsearch_version }}.deb /tmp/elasticsearch.deb
+
 RUN apt-get -y install --no-install-recommends -t jessie-backports openjdk-8-jre \
-    && curl https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/deb/elasticsearch/{{ elasticsearch_version }}/elasticsearch-{{ elasticsearch_version }}.deb -o /tmp/elasticsearch.deb \
-    && dpkg -i /tmp/elasticsearch.deb \
-    && rm -f /tmp/elasticsearch.deb \
     && apt-get clean
 
+RUN curl https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add - \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends apt-transport-https \
+    && rm -rf /var/lib/apt/lists/* \
+    && echo "deb https://artifacts.elastic.co/packages/5.x/apt stable main" | sudo tee -a /etc/apt/sources.list.d/elastic-5.x.list
+
+RUN dpkg-divert --rename /usr/lib/sysctl.d/elasticsearch.conf \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends "elasticsearch={{ elasticsearch_version }}" \
+    && rm -rf /var/lib/apt/lists/*
+
 RUN usermod -a -G microservices elasticsearch \
-    && chown -R elasticsearch: /usr/share/elasticsearch
+    && chown -R elasticsearch:elasticsearch /usr/share/elasticsearch
 
 # by default elasticsearch shell is /bin/false, we need
 # /bin/bash to run elasticsearch as non-root
 # https://discuss.elastic.co/t/running-as-non-root-user-service-wrapper-has-changed/7863
 RUN usermod -s /bin/bash elasticsearch -d /usr/share/elasticsearch
+
+RUN /usr/share/elasticsearch/bin/elasticsearch-plugin install io.fabric8:elasticsearch-cloud-kubernetes:5.2.2
 
 USER elasticsearch

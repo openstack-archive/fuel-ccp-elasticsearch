@@ -7,10 +7,16 @@ service:
   containers:
     - name: elasticsearch
       image: elasticsearch
+      env:
+        - name: NODE_DATA
+          value: "false"
+        - name: NODE_MASTER
+          value: "true"
       daemon:
-        command: /usr/share/elasticsearch/bin/elasticsearch
         files:
           - elasticsearch.yml
+          - log4j2
+        command: /usr/share/elasticsearch/bin/elasticsearch
     - name: cron
       image: cron
       daemon:
@@ -34,3 +40,6 @@ files:
     path: /etc/cron.d/curator
     content: curator-cronjob
     perm: "0644"
+  log4j2:
+    path: /usr/share/elasticsearch/config/log4j2.properties
+    content: log4j2.properties.j2
